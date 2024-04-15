@@ -132,7 +132,7 @@ dati_val = dati_puliti(ind([1:n_val]),:);
 dati_iden = dati_puliti(ind([1+n_val:end]),:);
 
 %% --------------------------------------------------------------------- %%
-% plot di  grasso corporeo vs IMC
+% plot di  Grasso corporeo vs IMC
 figure(5)
 plot(dati_iden(:, 15), dati_iden(:, 1), 'x');
 hold on
@@ -143,3 +143,27 @@ xlabel("IMC [kg*m\^(-2)]");
 ylabel("Grasso corporeo [kg]");
 legend("Dati di identificazione", "Dati di validazione");
 
+%% --------------------------------------------------------------------- %%
+% plot di  Grasso corporeo vs Età
+figure(6)
+plot(dati_iden(:, 2), dati_iden(:, 1), 'x'); % equivalentemente si può usare scatter(arg1, arg2, [], 'colore')
+hold on
+plot(dati_val(:, 2), dati_val(:, 1), 'xr');
+grid on;
+title("Grasso corporeo vs Età");
+xlabel("Età [anni]");
+ylabel("Grasso corporeo [kg]");
+legend("Dati di identificazione", "Dati di validazione");
+
+%% --------------------------------------------------------------------- %%
+% plot di  grasso corporeo vs IMC e Età
+figure(7)
+plot3(dati_iden(:, 15), dati_iden(:, 2), dati_iden(:, 1), 'o');
+hold on
+plot3(dati_val(:, 15), dati_val(:,2), dati_val(:, 1), 'or');
+grid on;
+title("Grasso corporeo vs IMC e Età");
+xlabel("IMC [kg*m\^(-2)]");
+ylabel("Età [anni]");
+zlabel("Grasso corporeo [kg]");
+legend("Dati di identificazione", "Dati di validazione");

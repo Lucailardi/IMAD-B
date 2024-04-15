@@ -126,23 +126,43 @@ dati_puliti(dove,:) = [];
 rng(1)                          % fisso il seed
 ind = randperm(size(dati_puliti,1));   % permuto gli indici in maniera casuale
 
-n_valid = round(30*size(dati_puliti,1)/100);            % il 30% va nel set di validazione %%ERA n_iden MA QUESTI SONO GLI INDICI DEI DATI DI VALIDAZIONE
-n_ident = length(dati_puliti(:, 1)) - n_valid
-dati_validazione = dati_puliti(ind([1:n_valid]),:);
-dati_identificazione = dati_puliti(ind([1+n_valid]):end,:);
+n_val = round(30*size(dati_puliti,1)/100);            % il 30% va nel set di validazione
+n_iden = length(dati_puliti(:, 1)) - n_val;
+dati_val = dati_puliti(ind([1:n_val]),:);
+dati_iden = dati_puliti(ind([1+n_val:end]),:);
 
-%PRIMA ERA COSI: dati_identificazione = dati_puliti(ind([1:(size(dati,1)-n_valid)]),:);
-%MA SI RIPETEVANO I PRIMI 71 DATI E GLI ULTIMI 71 NON APPARIVANO NEL SET DI
-%IDENTIFICAZIONE. HO CAMBIATO GLI INDICI PRESI DA dati_identificazione
 %% --------------------------------------------------------------------- %%
-% plot di  grasso corporeo vs IMC
+% plot di  Grasso corporeo vs IMC
 figure(5)
-plot(dati_identificazione(:, 15), dati_identificazione(:, 1), 'x');
+plot(dati_iden(:, 15), dati_iden(:, 1), 'x');
+hold on
+plot(dati_val(:, 15), dati_val(:, 1), 'xr');
 grid on;
 title("Grasso corporeo vs IMC");
 xlabel("IMC [kg*m\^(-2)]");
 ylabel("Grasso corporeo [kg]");
-legend("Dati di identificazione");
+legend("Dati di identificazione", "Dati di validazione");
 
-%%SERVE AVERE UN VETTORE ANCHE CON LA VARIABILE TARGET EPURATA DAI SOGGETTI
-%%OUTLIER
+%% --------------------------------------------------------------------- %%
+% plot di  Grasso corporeo vs Età
+figure(6)
+plot(dati_iden(:, 2), dati_iden(:, 1), 'x'); % equivalentemente si può usare scatter(arg1, arg2, [], 'colore')
+hold on
+plot(dati_val(:, 2), dati_val(:, 1), 'xr');
+grid on;
+title("Grasso corporeo vs Età");
+xlabel("Età [anni]");
+ylabel("Grasso corporeo [kg]");
+legend("Dati di identificazione", "Dati di validazione");
+scatter
+%% --------------------------------------------------------------------- %%
+% plot di  grasso corporeo vs IMC e Età
+figure(7)
+plot3(dati_iden(:, 15), dati_iden(:, 2), dati_iden(:, 1), 'o');
+hold on
+plot3(dati_val(:, 15), dati_val(:dati_val(:, 1), 'xr');
+grid on;
+title("Grasso corporeo vs IMC");
+xlabel("IMC [kg*m\^(-2)]");
+ylabel("Grasso corporeo [kg]");
+legend("Dati di identificazione", "Dati di validazione");
