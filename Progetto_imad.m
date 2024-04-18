@@ -132,38 +132,208 @@ dati_val = dati_puliti(ind([1:n_val]),:);
 dati_iden = dati_puliti(ind([1+n_val:end]),:);
 
 %% --------------------------------------------------------------------- %%
+
+
+%% Modelli polinomiali
+grasso_corp_iden = dati_iden(:, 1);
+grasso_corp_val = dati_val(:, 1);
+IMC_iden = dati_iden(:, 15);
+IMC_val = dati_val(:, 15);
+eta_iden = dati_iden(:, 2);
+eta_val = dati_val(:, 2);
+
+IMC_grid = linspace(0, 45, 100)';
+eta_grid = linspace(15, 90, 100)';
+
+%% Modelli polinomiali di Grasso corporeo vs IMC
+
 % plot di  Grasso corporeo vs IMC
-figure(5)
-plot(dati_iden(:, 15), dati_iden(:, 1), 'x');
+figure(5) 
+plot(IMC_iden, grasso_corp_iden, 'x'); 
 hold on
-plot(dati_val(:, 15), dati_val(:, 1), 'xr');
+plot(IMC_val, grasso_corp_val, 'xr');
 grid on;
 title("Grasso corporeo vs IMC");
 xlabel("IMC [kg*m\^(-2)]");
 ylabel("Grasso corporeo [kg]");
-legend("Dati di identificazione", "Dati di validazione");
+
+% Modello costante
+phi0 = [ones(n_iden, 1)];
+[thetaLS0, stddev0] = lscov(phi0, grasso_corp_iden);
+
+q0 = length(thetaLS0);
+
+ystima0 = phi0*thetaLS0;
+epsilon0 = grasso_corp_iden-ystima0;
+SSR0 = epsilon0'*epsilon0;
+
+phi_grid = ones(length(IMC_grid), 1);
+curva = phi_grid*thetaLS0;
+hold on
+plot(IMC_grid, curva)
+
+% Modello affine
+phi1 = [ones(n_iden, 1), IMC_iden];
+[thetaLS1, stddev1] = lscov(phi1, grasso_corp_iden);
+
+q1 = length(thetaLS1);
+
+ystima1 = phi1*thetaLS1;
+epsilon1 = grasso_corp_iden-ystima1;
+SSR1 = epsilon1'*epsilon1;
+
+phi_grid = [ones(length(IMC_grid), 1), IMC_grid] ;
+curva = phi_grid*thetaLS1;
+hold on
+plot(IMC_grid, curva)
+
+% Modello quadratico
+phi2 = [ones(n_iden, 1), IMC_iden, IMC_iden.^2];
+[thetaLS2, stddev2] = lscov(phi2, grasso_corp_iden);
+
+q2 = length(thetaLS2);
+
+ystima2 = phi2*thetaLS2;
+epsilon2 = grasso_corp_iden-ystima2;
+SSR2 = epsilon2'*epsilon2;
+
+phi_grid = [ones(length(IMC_grid), 1), IMC_grid, IMC_grid.^2] ;
+curva = phi_grid*thetaLS2;
+hold on
+plot(IMC_grid, curva)
+
+% Modello cubico
+phi3 = [ones(n_iden, 1), IMC_iden, IMC_iden.^2, IMC_iden.^3];
+[thetaLS3, stddev3] = lscov(phi3, grasso_corp_iden);
+
+q3 = length(thetaLS3);
+
+ystima3 = phi3*thetaLS3;
+epsilon3 = grasso_corp_iden-ystima3;
+SSR3 = epsilon3'*epsilon3;
+
+phi_grid = [ones(length(IMC_grid), 1), IMC_grid, IMC_grid.^2, IMC_grid.^3] ;
+curva = phi_grid*thetaLS3;
+hold on
+plot(IMC_grid, curva)
+
+% Modello grado 4
+phi4 = [ones(n_iden, 1), IMC_iden, IMC_iden.^2, IMC_iden.^3, IMC_iden.^4];
+[thetaLS4, stddev4] = lscov(phi4, grasso_corp_iden);
+
+q4 = length(thetaLS4);
+
+ystima4 = phi4*thetaLS4;
+epsilon4 = grasso_corp_iden-ystima4;
+SSR4 = epsilon4'*epsilon4;
+
+phi_grid = [ones(length(IMC_grid), 1), IMC_grid, IMC_grid.^2, IMC_grid.^3, IMC_grid.^4] ;
+curva = phi_grid*thetaLS4;
+hold on
+xlim([15, 40]);
+ylim([0, 50]);
+plot(IMC_grid, curva)
+
+legend("Dati di identificazione", "Dati di validazione", "grado 0", "grado 1", "grado 2", "grado 3", "grado 4", 'Location', 'northwest')
 
 %% --------------------------------------------------------------------- %%
 % plot di  Grasso corporeo vs Età
 figure(6)
-plot(dati_iden(:, 2), dati_iden(:, 1), 'x'); % equivalentemente si può usare scatter(arg1, arg2, [], 'colore')
+plot(eta_iden, grasso_corp_iden, 'x'); % equivalentemente si può usare scatter(arg1, arg2, [], 'colore')
 hold on
-plot(dati_val(:, 2), dati_val(:, 1), 'xr');
+plot(eta_val, grasso_corp_val, 'xr');
 grid on;
 title("Grasso corporeo vs Età");
 xlabel("Età [anni]");
 ylabel("Grasso corporeo [kg]");
-legend("Dati di identificazione", "Dati di validazione");
 
-%% --------------------------------------------------------------------- %%
-% plot di  grasso corporeo vs IMC e Età
-figure(7)
-plot3(dati_iden(:, 15), dati_iden(:, 2), dati_iden(:, 1), 'o');
+% Modello costante
+phi0 = [ones(n_iden, 1)];
+[thetaLS0, stddev0] = lscov(phi0, grasso_corp_iden);
+
+q0 = length(thetaLS0);
+
+ystima0 = phi0*thetaLS0;
+epsilon0 = grasso_corp_iden-ystima0;
+SSR0 = epsilon0'*epsilon0;
+
+phi_grid = ones(length(eta_grid), 1);
+curva = phi_grid*thetaLS0;
 hold on
-plot3(dati_val(:, 15), dati_val(:,2), dati_val(:, 1), 'or');
-grid on;
-title("Grasso corporeo vs IMC e Età");
-xlabel("IMC [kg*m\^(-2)]");
-ylabel("Età [anni]");
-zlabel("Grasso corporeo [kg]");
-legend("Dati di identificazione", "Dati di validazione");
+plot(eta_grid, curva)
+
+% Modello affine
+phi1 = [ones(n_iden, 1), eta_iden];
+[thetaLS1, stddev1] = lscov(phi1, grasso_corp_iden);
+
+q1 = length(thetaLS1);
+
+ystima1 = phi1*thetaLS1;
+epsilon1 = grasso_corp_iden-ystima1;
+SSR1 = epsilon1'*epsilon1;
+
+phi_grid = [ones(length(eta_grid), 1), eta_grid] ;
+curva = phi_grid*thetaLS1;
+hold on
+plot(eta_grid, curva)
+
+% Modello quadratico
+phi2 = [ones(n_iden, 1), eta_iden, eta_iden.^2];
+[thetaLS2, stddev2] = lscov(phi2, grasso_corp_iden);
+
+q2 = length(thetaLS2);
+
+ystima2 = phi2*thetaLS2;
+epsilon2 = grasso_corp_iden-ystima2;
+SSR2 = epsilon2'*epsilon2;
+
+phi_grid = [ones(length(eta_grid), 1), eta_grid, eta_grid.^2] ;
+curva = phi_grid*thetaLS2;
+hold on
+plot(eta_grid, curva)
+
+% Modello cubico
+phi3 = [ones(n_iden, 1), eta_iden, eta_iden.^2, eta_iden.^3];
+[thetaLS3, stddev3] = lscov(phi3, grasso_corp_iden);
+
+q3 = length(thetaLS3);
+
+ystima3 = phi3*thetaLS3;
+epsilon3 = grasso_corp_iden-ystima3;
+SSR3 = epsilon3'*epsilon3;
+
+phi_grid = [ones(length(eta_grid), 1), eta_grid, eta_grid.^2, eta_grid.^3] ;
+curva = phi_grid*thetaLS3;
+hold on
+plot(eta_grid, curva)
+
+% Modello grado 4
+phi4 = [ones(n_iden, 1), eta_iden, eta_iden.^2, eta_iden.^3, eta_iden.^4];
+[thetaLS4, stddev4] = lscov(phi4, grasso_corp_iden);
+
+q4 = length(thetaLS4);
+
+ystima4 = phi4*thetaLS4;
+epsilon4 = grasso_corp_iden-ystima4;
+SSR4 = epsilon4'*epsilon4;
+
+phi_grid = [ones(length(eta_grid), 1), eta_grid, eta_grid.^2, eta_grid.^3, eta_grid.^4] ;
+curva = phi_grid*thetaLS4;
+hold on
+xlim([15, 75]);
+ylim([0, 45])
+plot(eta_grid, curva)
+
+legend("Dati di identificazione", "Dati di validazione", "grado 0", "grado 1", "grado 2", "grado 3", "grado 4", 'Location', 'northwest')% 
+% %% --------------------------------------------------------------------- %%
+% % plot di  grasso corporeo vs IMC e Età
+% figure(7)
+% plot3(dati_iden(:, 15), dati_iden(:, 2), dati_iden(:, 1), 'o');
+% hold on
+% plot3(dati_val(:, 15), dati_val(:,2), dati_val(:, 1), 'or');
+% grid on;
+% title("Grasso corporeo vs IMC e Età");
+% xlabel("IMC [kg*m\^(-2)]");
+% ylabel("Età [anni]");
+% zlabel("Grasso corporeo [kg]");
+% legend("Dati di identificazione", "Dati di validazione");
