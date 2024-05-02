@@ -173,8 +173,8 @@ while c <= p
      Ftest = [];
 end
 
-coefname = n_reg;
-% coefname = Chi;
+% coefname = n_reg;
+coefname = Chi;
 Beta = inv([X_{:}]'*[X_{:}])*[X_{:}]'*Y;
 
 B_hat = [Beta];      % coefficienti beta
@@ -261,8 +261,9 @@ end
 
 % estraggo le colonne giuste dal set di validazione
 clear i j
-for i =1:length(indice)
-    Xv{1,i} = VAL{1,indice(i)};
+Xv{1,1} = ones(length(VAL{1,1}),1);
+for k = 1:length(indice)-1
+    Xv{1,k+1} = VAL{1,indice(k)};
 end 
 
 % applico la regressione a mano al set di validazione
