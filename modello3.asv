@@ -318,12 +318,8 @@ ystimaVal5 = phiVal5*thetaLS5;
 epsilonVal5 = grasso_corp_val - ystimaVal5;
 SSRVal5 = epsilonVal5'*epsilonVal5;
 
-%% Conclusione
 % AIC minimo è quello del modello 3
 % FPE minimo è quello del modello 3
 % MDL minimo è quello del modello 1
 
 % Fisher ci dava come migliore il modello 1
-
-% Crossvalidazione da SSR minimo per il modello 1 (con molto margine
-% rispetto agli altri soprattutto 3, 4, 5)

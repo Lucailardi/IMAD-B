@@ -32,6 +32,8 @@ ystimaVal1 = phiVal1*thetaLS1;
 epsilonVal1 = grassocorporeo1- ystimaVal1;
 SSRVal1 = epsilonVal1'*epsilonVal1;
 
+
+
 % %% Polinomio di grado 2
 % phiVal2 = [ones(nVal, 1), giriValidazione, pressioneValidazione, giriValidazione.^2, pressioneValidazione.^2, giriValidazione.*pressioneValidazione];
 % ystimaVal2 = phiVal2*thetaLS2;
