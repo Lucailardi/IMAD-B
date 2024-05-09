@@ -80,7 +80,7 @@ title("Grasso corporeo in funzione di età e IMC")
 xlabel("Età [anni]");
 ylabel("IMC [kg*m\^(-2)]");
 zlabel("Grasso corporeo [kg]");
-legend("dati identificazione", "dati validazione", "polinomio di grado 1")
+legend("Dati di identificazione", "Dati di validazione", "polinomio di grado 1")
 
 
 %% ----------------------
@@ -112,7 +112,7 @@ title("Grasso corporeo in funzione di età e IMC")
 xlabel("Età [anni]");
 ylabel("IMC [kg*m\^(-2)]");
 zlabel("Grasso corporeo [kg]");
-legend("dati identificazione", "dati validazione", "polinomio di grado 2")
+legend("Dati di identificazione", "Dati di validazione", "polinomio di grado 2")
 
 
 %% ----------------------
@@ -144,7 +144,7 @@ title("Grasso corporeo in funzione di età e IMC")
 xlabel("Età [anni]");
 ylabel("IMC [kg*m\^(-2)]");
 zlabel("Grasso corporeo [kg]");
-legend("dati identificazione", "dati validazione", "polinomio di grado 3")
+legend("Dati di identificazione", "Dati di validazione", "polinomio di grado 3")
 
 
 %% ----------------------
@@ -177,7 +177,7 @@ title("Grasso corporeo in funzione di età e IMC")
 xlabel("Età [anni]");
 ylabel("IMC [kg*m\^(-2)]");
 zlabel("Grasso corporeo [kg]");
-legend("dati identificazione",  "dati validazione", "polinomio di grado 4")
+legend("Dati di identificazione",  "Dati di validazione", "polinomio di grado 4")
 
 
 %% ----------------------
@@ -212,7 +212,7 @@ title("Grasso corporeo in funzione di età e IMC")
 xlabel("Età [anni]");
 ylabel("IMC [kg*m\^(-2)]");
 zlabel("Grasso corporeo [kg]");
-legend("dati identificazione", "dati validazione", "polinomio di grado 5")
+legend("Dati di identificazione", "Dati di validazione", "polinomio di grado 5")
 
 
 %% ======================================================= %%
