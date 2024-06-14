@@ -1,0 +1,205 @@
+clc
+close all
+clear
+%%
+tabella = readtable('BodyFatData.xlsx');
+
+matrice = table2array(tabella);   % converto la tabella in matrice
+dati = matrice(:,[2:end]);        % matrice dei dati SENZA la variabile target
+target = matrice(:,1);            % SOLO variabile target
+
+
+
+% set del nome delle variabili
+nomi = {'Eta','Peso','Altezza','Collo','Petto','Addome','Anca','Coscia',...
+    'Ginocchio','Caviglia','Bicipite','Avambraccio','Polso','BMI','RVF'};
+nom_target = {'Grasso'};
+%% --------------------------------------------------------------------- %%
+%    Gestione degli Outliers
+% --------------------------------
+% Siccome si tratta di pochi dati ~ 5% allora elimino le righe
+outliers = isoutlier(matrice);
+Any = any(outliers,2);
+
+n_out = size(find(Any==1),1);
+perc = (n_out*100)/size(dati,1);
+disp('percentuale di outliers')
+disp(perc)
+
+% pulizia da outliers
+dove = find(Any==1);
+dati_puliti = matrice;        % matrice dei dati ma senza outliers
+dati_puliti(dove,:) = [];
+
+% salviamo la matrice 
+% save('dati_puliti.mat',"dati_puliti");
+
+% pulizia delle variabili
+clear outliers Any n_out perc dove 
+
+%%
+% heatmap
+R1 = corr(dati_puliti(:, [1, 3, 6, 7, 8, 14, 15]),'rows','complete','Type','Kendall');  
+
+% plot della heatmap
+figure('Name','Heatmap')
+h1 = heatmap(R1);
+h1.XDisplayLabels = {'Grasso','Peso','Petto', 'Addome', 'Anca','BMI', 'RVF'};
+h1.YDisplayLabels = {'Grasso','Peso','Petto', 'Addome', 'Anca','BMI', 'RVF'};
+title('HeatMap')
+%% --------------------------------------------------------------------- %%
+%   divisione del dataset 70-30
+% --------------------------------
+
+% prima devo randomizzare
+rng(1)                                 % fisso il seed
+ind = randperm(size(dati_puliti,1));   % permuto gli indici in maniera casuale
+
+n_val = round(30*size(dati_puliti,1)/100);            % il 30% va nel set di validazione
+n_iden = length(dati_puliti(:, 1)) - n_val;
+dati_val = dati_puliti(ind([1:n_val]),:);
+dati_iden = dati_puliti(ind([1+n_val:end]),:);
+
+% grasso
+grasso_corp_iden = dati_iden(:, 1);
+grasso_corp_val = dati_val(:, 1);
+
+% IMC
+IMC_iden = dati_iden(:, 15);
+IMC_val = dati_val(:, 15);
+
+% RVF
+RVF_iden = dati_iden(:, 16);
+RVF_val = dati_val(:, 16);
+
+% Addome
+add_iden = dati_iden(:, 7);
+add_val = dati_val(:, 7);
+
+% Petto
+petto_iden = dati_iden(:, 6);
+petto_val = dati_val(:, 6);
+%% Lineare
+phi1 = [ones(n_iden, 1), IMC_iden, RVF_iden, add_iden, petto_iden];
+[thetaLS1, std_theta1] = lscov(phi1, grasso_corp_iden);
+q1 = length(thetaLS1);
+
+ystima1 = phi1*thetaLS1;
+epsilon1 = grasso_corp_iden-ystima1;
+SSR1 = epsilon1'*epsilon1;
+
+%% Quadratico
+phi2 = [ones(n_iden, 1), IMC_iden, RVF_iden, add_iden, petto_iden, IMC_iden.^2, RVF_iden.^2, ...
+    add_iden.^2, petto_iden.^2, IMC_iden.*RVF_iden, IMC_iden.*add_iden, IMC_iden.*petto_iden, ...
+    RVF_iden.*add_iden, RVF_iden.*petto_iden, add_iden.*petto_iden];
+[thetaLS2, std_theta2] = lscov(phi2, grasso_corp_iden);
+q2 = length(thetaLS2);
+
+ystima2 = phi2*thetaLS2;
+epsilon2 = grasso_corp_iden-ystima2;
+SSR2 = epsilon2'*epsilon2;
+
+%% Cubico
+phi3 = [ones(n_iden, 1), IMC_iden, RVF_iden, add_iden, petto_iden, IMC_iden.^2, RVF_iden.^2, ...
+    add_iden.^2, petto_iden.^2, IMC_iden.*RVF_iden, IMC_iden.*add_iden, IMC_iden.*petto_iden, ...
+    RVF_iden.*add_iden, RVF_iden.*petto_iden, add_iden.*petto_iden, IMC_iden.^3, RVF_iden.^3, ...
+    add_iden.^3, petto_iden.^3, (IMC_iden.^2).*RVF_iden, (IMC_iden.^2).*add_iden, (IMC_iden.^2).*petto_iden,...
+    (RVF_iden.^2).*add_iden, (RVF_iden.^2).*petto_iden, (add_iden.^2).*petto_iden, ...
+    IMC_iden.*(RVF_iden.^2), IMC_iden.*(add_iden.^2), IMC_iden.*(petto_iden.^2), RVF_iden.*(add_iden.^2), ...
+    RVF_iden.*(petto_iden.^2), add_iden.*(petto_iden.^2), IMC_iden.*RVF_iden.*add_iden, ...
+    IMC_iden.*RVF_iden.*petto_iden, IMC_iden.*add_iden.*petto_iden, RVF_iden.*add_iden.*petto_iden];
+[thetaLS3, std_theta3] = lscov(phi3, grasso_corp_iden);
+q3 = length(thetaLS3);
+
+ystima3 = phi3*thetaLS3;
+epsilon3 = grasso_corp_iden-ystima3;
+SSR3 = epsilon3'*epsilon3;
+
+%% Test F
+alpha = 0.05;
+
+% Confronto fra polinomio di grado 1 e di grado 2
+f_alpha2 = finv(1-alpha, 1, n_iden-q2);
+f2 = (n_iden-q2)*(SSR1 - SSR2)/SSR2;
+
+if f2 < f_alpha2
+    % f2 < f_alpha2 quindi procediamo
+
+    % Confronto fra polinomio di grado 2 e di grado 3
+    f_alpha3 = finv(1-alpha, 1, n_iden-q3);
+    f3 = (n_iden-q3)*(SSR2 - SSR3)/SSR3;
+
+end 
+
+
+%% Test oggettivi
+% FPE, AIC, MLE
+
+% Polinomio di primo grado
+FPE1 = (n_iden+q1)/(n_iden-q1)*SSR1;
+AIC1 = 2*q1/n_iden + log(SSR1);
+MDL1 = log(n_iden)*q1/n_iden + log(SSR1);
+
+% Polinomio di secondo grado
+FPE2 = (n_iden+q2)/(n_iden-q2)*SSR2;
+AIC2 = 2*q2/n_iden + log(SSR2);
+MDL2 = log(n_iden)*q2/n_iden + log(SSR2);
+
+% Polinomio di terzo grado
+FPE3 = (n_iden+q3)/(n_iden-q3)*SSR3;
+AIC3 = 2*q3/n_iden + log(SSR3);
+MDL3 = log(n_iden)*q3/n_iden + log(SSR3);
+
+%% Crossvalidazione
+% Polinomio grado 1
+phiVal1 = [ones(n_val, 1), IMC_val, RVF_val, add_val, petto_val];
+ystimaVal1 = phiVal1*thetaLS1;
+epsilonVal1 = grasso_corp_val - ystimaVal1;
+SSRVal1 = epsilonVal1'*epsilonVal1;
+
+% Polinomio di grado 2
+phiVal2 = [ones(n_val, 1), IMC_val, RVF_val, add_val, petto_val, ...
+           IMC_val.^2, RVF_val.^2, add_val.^2, petto_val.^2, ...
+           IMC_val.*RVF_val, IMC_val.*add_val, IMC_val.*petto_val, ...
+           RVF_val.*add_val, RVF_val.*petto_val, add_val.*petto_val];
+ystimaVal2 = phiVal2*thetaLS2;
+epsilonVal2 = grasso_corp_val - ystimaVal2;
+SSRVal2 = epsilonVal2'*epsilonVal2;
+
+% Polinomio di grado 3
+phiVal3 =  [ones(n_val, 1), IMC_val, RVF_val, add_val, petto_val, ...
+           IMC_val.^2, RVF_val.^2, add_val.^2, petto_val.^2, ...
+           IMC_val.*RVF_val, IMC_val.*add_val, IMC_val.*petto_val, ...
+           RVF_val.*add_val, RVF_val.*petto_val, add_val.*petto_val, ...
+           IMC_val.^3, RVF_val.^3, add_val.^3, petto_val.^3, ...
+           (IMC_val.^2).*RVF_val, (IMC_val.^2).*add_val, (IMC_val.^2).*petto_val, ...
+           (RVF_val.^2).*add_val, (RVF_val.^2).*petto_val, (add_val.^2).*petto_val, ...
+           IMC_val.*(RVF_val.^2), IMC_val.*(add_val.^2), IMC_val.*(petto_val.^2), ...
+           RVF_val.*(add_val.^2), RVF_val.*(petto_val.^2), add_val.*(petto_val.^2), ...
+           IMC_val.*RVF_val.*add_val, IMC_val.*RVF_val.*petto_val, IMC_val.*add_val.*petto_val, ...
+           RVF_val.*add_val.*petto_val];
+ystimaVal3 = phiVal3*thetaLS3;
+epsilonVal3 = grasso_corp_val - ystimaVal3;
+SSRVal3 = epsilonVal3'*epsilonVal3;
+
+% MSE
+MSE1 = SSR1/(n_val-q1);
+MSE2 = SSRl2/(n_val-q2);
+MSE3 = SSR3/(n_val-q3);
+MSEVal1 = SSRVal1/(n_val-q1);
+MSEVal2 = SSRVal2/(n_val-q2);
+MSEVal3 = SSRVal3/(n_val-q3);
+
+%% 
+% Specifica il nome del file Excel
+nome_file_excel = 'datipuliti.xlsx';
+
+nomi_colonne = {'Grasso','Eta','Peso','Altezza','Collo','Petto','Addome','Anca','Coscia',...
+    'Ginocchio','Caviglia','Bicipite','Avambraccio','Polso','BMI','RVF'};
+
+
+% Salva i nomi delle colonne nel file Excel
+writecell(nomi_colonne, nome_file_excel, 'Sheet', 'Sheet1', 'Range', 'A1:P1');
+
+% Salva la matrice nel file Excel senza i nomi delle colonne
+writematrix(matrice, nome_file_excel, 'Sheet', 'Sheet1', 'Range', 'A2');
